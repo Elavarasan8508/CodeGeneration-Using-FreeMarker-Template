@@ -1,0 +1,105 @@
+generator:
+  name: "CustomCodeGen"
+
+  database:
+    dialect: "PostgreSQL"
+    driver: "org.postgresql.Driver"
+    url: "jdbc:postgresql:postgres"
+    user: "postgres"
+    password: "root"
+    schema: "public"
+    includes:
+      - ".*"
+    excludes:
+      - "flyway_schema_history"
+    inputFilter:
+      tableTypes: [ "TABLE", "VIEW" ]
+    namingStrategy:
+      stripPrefixes: [ "tbl_", "v_" ]
+      convertToCamelCase: true
+      uppercaseAcronyms: [ "ID", "URL", "API" ]
+
+  target:
+    basePackage: "com.bsit.codegeneration"
+    outputDirectory: "src/main/java"
+    recordPackage: "record"
+    daoPackage: "dao"
+    mapperPackage: "mapper"
+    repositoryPackage: "repository"
+    overwrite: true
+    formatSource: true
+
+  pojo:
+    generate: true
+    generator: "freemarker"
+    annotations:
+      - "lombok.Data"
+      - "javax.validation.constraints.NotNull"
+    implementInterfaces: []
+    serializable: true
+    useJavaTime: true
+    addBuilderPattern: true
+    validationAnnotations: false
+    includeRelationships: true
+    includeReverseRelationships: true
+    removeForeignKeyIdFields: true
+    packageName: "pojo"
+    stripPrefixes: [ "tbl_", "v_" ]
+
+  record:
+    generate: true
+    builderPattern: true
+    packageName: "record"
+    stripPrefixes: [ "tbl_", "v_" ]
+    useJavaTime: true
+    annotations:
+      - "javax.validation.constraints.NotNull"
+    includeRelationships: true
+    includeReverseRelationships: true
+    removeForeignKeyIdFields: true
+
+  dao:
+    generate: true
+    style: "spring-jdbc"
+    useNamedParameters: true
+    generateCrud: true
+    generateBatchOps: true
+    generatePaginationSupport: true
+    generateSoftDeleteSupport: false
+    baseClass: "BaseRepository"
+
+  mapper:
+    generate: false
+    useRowMapper: true
+    useResultsetMapper: false
+    mapperStyle: "spring"
+    mapNullsExplicitly: true
+    nullHandlingStrategy: "default"
+
+  repository:
+    generate: false
+    annotation: "@Repository"
+    transactionManager: "txManager"
+
+  advanced:
+    enumStrategy: "ordinal"
+    generateSchemaAsJavaPackage: false
+    generateStaticQueries: false
+    generateMetadata: true
+    customTypeMappings:
+      - dbType: "jsonb"
+        javaType: "java.util.Map<String, Object>"
+      - dbType: "timestamp"
+        javaType: "java.time.LocalDateTime"
+
+  sqlTemplates:
+    enabled: false
+    outputDirectory: "src/main/resources/sql"
+    generatePerMethod: true
+    templateNaming: "kebab-case"
+    dialectSpecificVariants: true
+
+  logging:
+    enabled: true
+    level: "DEBUG"
+    outputFile: "target/codegen.log"

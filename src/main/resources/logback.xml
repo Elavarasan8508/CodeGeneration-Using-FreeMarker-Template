@@ -1,0 +1,30 @@
+<configuration>
+    <!-- Console appender for general logs -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender for "film" table logs -->
+    <appender name="FILM_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/film.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/film-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory> <!-- Keep 30 days of logs -->
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Default logger (console) -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Custom logger for "film" (file output) -->
+    <logger name="filmLogger" level="INFO">
+        <appender-ref ref="FILM_FILE" />
+    </logger>
+</configuration>
