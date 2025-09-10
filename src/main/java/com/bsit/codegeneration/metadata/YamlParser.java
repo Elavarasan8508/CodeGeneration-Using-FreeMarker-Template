@@ -1,8 +1,6 @@
 package com.bsit.codegeneration.metadata;
 
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -12,7 +10,7 @@ import com.bsit.codegeneration.model.GeneratorSettings;
 import com.bsit.codegeneration.model.RepositoryConfig;
 import com.bsit.codegeneration.model.DatabaseConfig;
 import com.bsit.codegeneration.model.TargetConfig;
-import com.bsit.codegeneration.model.PojoConfig;  // Updated to focus on PojoConfig
+import com.bsit.codegeneration.model.PojoConfig;
 import com.bsit.codegeneration.model.RecordConfig;
 import com.bsit.codegeneration.model.DaoConfig;
 
@@ -25,7 +23,11 @@ public class YamlParser {
     public void generate() throws Exception {
         Yaml yaml = new Yaml(new CustomGeneratorConstructor());
 
-        try (InputStream input = Files.newInputStream(Paths.get("src/main/resources/generator.yml"))) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("generator.yml")) {
+            if (input == null) {
+                throw new IllegalStateException("generator.yml not found in resources!");
+            }
+
             GeneratorConfig config = yaml.loadAs(input, GeneratorConfig.class);
             GeneratorSettings generator = config.getGenerator();
 
@@ -38,11 +40,20 @@ public class YamlParser {
 
             // Set up DB connection using details from YAML
             Class.forName(dbConfig.getDriver());
-            try (Connection conn = DriverManager.getConnection(dbConfig.getUrl(), dbConfig.getUser(), dbConfig.getPassword())) {
+            try (Connection conn = DriverManager.getConnection(
+                    dbConfig.getUrl(),
+                    dbConfig.getUser(),
+                    dbConfig.getPassword())) {
 
-
-                // Proceed with other generation (e.g., Record, DAO) - no DTO
-                DbReader.readDatabase(dbConfig, targetConfig, recordConfig, daoConfig, repositoryConfig,pojoConfig);  // Removed dtoConfig
+                // Proceed with other generation (e.g., Record, DAO, POJO)
+                DbReader.readDatabase(
+                        dbConfig,
+                        targetConfig,
+                        recordConfig,
+                        daoConfig,
+                        repositoryConfig,
+                        pojoConfig
+                );
             }
 
             log.info("Code generation completed successfully");
